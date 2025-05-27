@@ -852,6 +852,12 @@ export class MSICreator {
       this.windowsCompliantVersion,
       this.icon,
     );
+    if (this.windowsSign) {
+      await sign({
+        ...this.windowsSign,
+        files: [stubExe],
+      });
+    }
 
     this.exeFilePath = stubExe;
 
