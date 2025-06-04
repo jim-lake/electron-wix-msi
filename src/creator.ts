@@ -78,6 +78,7 @@ export interface MSICreatorOptions {
   certificateFile?: string;
   // Deprecated, use windowsSign instead
   certificatePassword?: string;
+  extraFiles?: Array<File>;
 }
 
 export interface UIOptions {
@@ -166,6 +167,7 @@ export class MSICreator {
   public associateExtensions?: string;
   public bundled: boolean;
   public windowsSign?: WindowsSignOptions;
+  public extraFiles: Array<File>;
 
   public ui: UIOptions | boolean;
 
@@ -222,6 +224,7 @@ export class MSICreator {
     this.autoLaunch = false;
     this.autoRun = options.autoRun || false;
     this.autoLaunchArgs = [];
+    this.extraFiles = options.extraFiles || [];
 
     if (typeof options.features === "object" && options.features !== null) {
       this.autoUpdate = options.features.autoUpdate;
@@ -268,6 +271,7 @@ export class MSICreator {
     );
     const registry = this.getRegistryKeys();
     const specialFiles = await this.getSpecialFiles();
+    this.extraFiles.forEach(file => specialFiles.push(file));
 
     this.files = files;
     this.specialFiles = specialFiles;
