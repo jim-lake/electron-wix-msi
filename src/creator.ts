@@ -167,7 +167,6 @@ export class MSICreator {
   public associateExtensions?: string;
   public bundled: boolean;
   public windowsSign?: WindowsSignOptions;
-  public extraFiles: Array<File>;
 
   public ui: UIOptions | boolean;
 
@@ -175,7 +174,7 @@ export class MSICreator {
   private specialFiles: Array<File> = [];
   private directories: Array<string> = [];
   private registry: Array<Registry> = [];
-  private tree: FileFolderTree | undefined;
+  public tree: FileFolderTree | undefined;
   private components: Array<Component> = [];
   private exeFilename: string;
   private exeFilePath: string;
@@ -224,7 +223,6 @@ export class MSICreator {
     this.autoLaunch = false;
     this.autoRun = options.autoRun || false;
     this.autoLaunchArgs = [];
-    this.extraFiles = options.extraFiles || [];
 
     if (typeof options.features === "object" && options.features !== null) {
       this.autoUpdate = options.features.autoUpdate;
@@ -254,30 +252,28 @@ export class MSICreator {
     }
   }
 
-  /**
-   * Analyzes the structure of the app directory and collects necessary
-   * information for creating a .wxs file. Then, creates the file and returns
-   * both the location as well as the content.
-   *
-   * @returns {Promise<{ wxsFile: string, wxsContent: string }>}
-   */
-  public async create(): Promise<{
-    wxsFile: string;
-    wxsContent: string;
-    supportBinaries: Array<string>;
-  }> {
+  public async preCreate() {
     const { files, directories } = await getDirectoryStructure(
       this.appDirectory,
     );
     const registry = this.getRegistryKeys();
     const specialFiles = await this.getSpecialFiles();
-    this.extraFiles.forEach(file => specialFiles.push(file));
 
     this.files = files;
     this.specialFiles = specialFiles;
     this.directories = directories;
     this.registry = registry;
     this.tree = await this.getTree();
+  }
+
+  public async create(): Promise<{
+    wxsFile: string;
+    wxsContent: string;
+    supportBinaries: Array<string>;
+  }> {
+    if (!this.tree) {
+      await this.preCreate();
+    }
 
     const { wxsContent, wxsFile } = await this.createWxs();
     this.wxsFile = wxsFile;
