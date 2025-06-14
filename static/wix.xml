@@ -146,6 +146,21 @@
       </Component>
     </DirectoryRef>
 
+    <Property Id="OLDER_EXE_PATH" Secure="yes" />
+    <CustomAction Id="SetOLDER_EXE_PATH"
+                  Property="OLDER_EXE_PATH"
+                  Value="[APPLICATIONROOTDIRECTORY]{{ApplicationBinary}}.exe"
+                  Execute="immediate" />
+    <CustomAction Id="RunOldExeUpgrade"
+                  Property="OLDER_EXE_PATH"
+                  ExeCommand="--squirrel-upgrade"
+                  Execute="immediate"
+                  Return="ignore" />
+    <InstallExecuteSequence>
+      <Custom Action="SetOLDER_EXE_PATH" Before="RunOldExeUpgrade">UPGRADINGPRODUCTCODE</Custom>
+      <Custom Action="RunOldExeUpgrade" Before="InstallInitialize">UPGRADINGPRODUCTCODE</Custom>
+    </InstallExecuteSequence>
+
     <Feature Id="Complete" Title="{{ApplicationName}} ({{SemanticVersion}})" Description="The complete package." Display="expand" Level="1" {{ConfigurableDirectory}}>
       <!-- Step 5: Tell WiX to install the files -->
       <Feature Id="MainApplication" Title="Main Application" Level="1" Description="The main components to run the applications." >
