@@ -156,10 +156,19 @@
                   ExeCommand="--squirrel-upgrade"
                   Execute="immediate"
                   Return="ignore" />
+    <CustomAction Id="RunOldExeUninstall"
+                  Property="OLDER_EXE_PATH"
+                  ExeCommand="--squirrel-uninstall"
+                  Execute="immediate"
+                  Return="ignore" />
+
     <InstallExecuteSequence>
-      <Custom Action="SetOLDER_EXE_PATH" Before="RunOldExeUpgrade">UPGRADINGPRODUCTCODE</Custom>
-      <Custom Action="RunOldExeUpgrade" Before="InstallInitialize">UPGRADINGPRODUCTCODE</Custom>
+      <Custom Action="SetOLDER_EXE_PATH" Before="InstallInitialize">1</Custom>
+      <Custom Action="RunOldExeUpgrade" After="SetOLDER_EXE_PATH">UPGRADINGPRODUCTCODE</Custom>
+      <Custom Action="RunOldExeUninstall" After="SetOLDER_EXE_PATH">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
     </InstallExecuteSequence>
+
+<!-- {{AutoRun}} -->
 
     <Feature Id="Complete" Title="{{ApplicationName}} ({{SemanticVersion}})" Description="The complete package." Display="expand" Level="1" {{ConfigurableDirectory}}>
       <!-- Step 5: Tell WiX to install the files -->
@@ -172,6 +181,5 @@
 <!-- {{AutoLaunchFeature}} -->
 <!-- {{AutoUpdateFeature}} -->
     </Feature> 
-<!-- {{AutoRun}} -->
   </Product>
 </Wix>
